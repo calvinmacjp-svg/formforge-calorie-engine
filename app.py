@@ -7,7 +7,7 @@ from calculator import (
     calculate_tdee,
     adjust_calories,
     calculate_macros,
-    weekly_progress,
+    adaptive_rate,
     estimate_timeline
 )
 
@@ -48,31 +48,26 @@ st.markdown("---")
 
 
 # =========================
-# GENERATE BUTTON
+# GENERATE
 # =========================
 if st.button("Generate Transformation Plan"):
 
-    # ---------- ENGINE CALCULATION ----------
+    # ENGINE
     bmr = calculate_bmr(weight, height, age, gender)
     tdee = calculate_tdee(bmr, activity)
     calories = adjust_calories(tdee, goal)
 
     macros = calculate_macros(weight, calories)
 
-    weekly = weekly_progress(goal, target_change)
-    weeks = estimate_timeline(weekly, target_change) if goal != "maintain" else 0
+    weekly = adaptive_rate(goal, activity, training_days)
+    weeks = estimate_timeline(target_change, weekly) if goal != "maintain" else 0
 
 
     # =========================
-    # DASHBOARD HEADER
+    # DASHBOARD
     # =========================
     st.markdown("## 📊 FormForge Transformation Dashboard")
-    st.markdown("---")
 
-
-    # =========================
-    # METRICS CARDS
-    # =========================
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -82,14 +77,13 @@ if st.button("Generate Transformation Plan"):
         st.metric("Protein", f"{macros['protein']} g")
 
     with col3:
-        st.metric("Training", f"{training_days} days")
-
+        st.metric("Training Days", f"{training_days}")
 
     st.markdown("---")
 
 
     # =========================
-    # MACRO BREAKDOWN
+    # MACROS
     # =========================
     st.markdown("## 🧬 Macro System")
 
@@ -106,14 +100,13 @@ if st.button("Generate Transformation Plan"):
     st.markdown("## 🧠 Transformation Intelligence")
 
     if goal == "gain muscle":
-        st.info("Lean mass accumulation mode activated. Protein prioritization engaged for hypertrophy optimization.")
+        st.info("Lean mass optimization active. Hypertrophy signaling prioritized.")
 
     elif goal == "lose weight":
-        st.info("Fat loss protocol active. Controlled deficit engaged for sustainable reduction while preserving muscle.")
+        st.info("Fat loss mode active. Controlled deficit engaged.")
 
     else:
-        st.info("Maintenance mode active. Focus on performance stability and metabolic balance.")
-
+        st.info("Maintenance mode active. Stability protocol engaged.")
 
     st.markdown("---")
 
@@ -124,13 +117,9 @@ if st.button("Generate Transformation Plan"):
     st.markdown("## 📈 Progress Projection")
 
     if goal != "maintain":
-        st.write(f"Weekly Change Rate: {weekly} kg/week")
+        st.write(f"Weekly Rate: {weekly} kg/week")
         st.write(f"Estimated Timeline: {weeks} weeks")
 
-
-        # =========================
-        # GRAPH SYSTEM
-        # =========================
         weeks_range = np.arange(0, max(weeks, 1) + 1)
         start_weight = weight
 
@@ -141,12 +130,11 @@ if st.button("Generate Transformation Plan"):
 
         df = pd.DataFrame({
             "Week": weeks_range,
-            "Projected Weight": weights
+            "Weight": weights
         })
 
         st.markdown("## 📉 Body Transformation Curve")
         st.line_chart(df.set_index("Week"))
-
 
     st.markdown("---")
 
@@ -159,4 +147,4 @@ if st.button("Generate Transformation Plan"):
     st.write(f"Daily Calorie Target: {int(calories)} kcal")
     st.write(f"Protein Target: {macros['protein']} g")
     st.write("Rule: Stay within ±5% of calorie target daily")
-    st.write("Training: Minimum 3–5 workouts per week recommended")
+    st.write("Training: 3–5 workouts per week minimum")
