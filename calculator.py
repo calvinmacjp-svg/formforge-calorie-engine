@@ -1,7 +1,7 @@
 import math
 
 # =========================
-# 1. BMR (Metabolic Base)
+# 1. BMR (Base Metabolic Rate)
 # =========================
 def calculate_bmr(weight, height, age, gender):
     if gender.lower() == "male":
@@ -11,7 +11,7 @@ def calculate_bmr(weight, height, age, gender):
 
 
 # =========================
-# 2. Activity Multiplier
+# 2. Activity System
 # =========================
 def activity_multiplier(level):
     levels = {
@@ -24,60 +24,61 @@ def activity_multiplier(level):
     return levels.get(level.lower(), 1.55)
 
 
-# =========================
-# 3. TDEE (Maintenance Calories)
-# =========================
 def calculate_tdee(bmr, activity_level):
     return bmr * activity_multiplier(activity_level)
 
 
 # =========================
-# 4. Goal Adjustment System
+# 3. Goal Engine
 # =========================
 def adjust_calories(tdee, goal):
     if goal == "lose weight":
         return tdee - 400
     elif goal == "gain muscle":
         return tdee + 300
-    else:
-        return tdee
+    return tdee
 
 
 # =========================
-# 5. Macro Engine (High Protein Priority)
+# 4. Macro Engine
 # =========================
 def calculate_macros(weight, calories):
-    protein = weight * 2.2  # transformation driver
-    fats = weight * 0.9     # hormonal support
+    protein = weight * 2.2
+    fats = weight * 0.9
 
     protein_cal = protein * 4
     fat_cal = fats * 9
 
-    carbs_cal = calories - (protein_cal + fat_cal)
-    carbs = carbs_cal / 4 if carbs_cal > 0 else 0
+    carbs = (calories - (protein_cal + fat_cal)) / 4
 
     return {
         "protein": round(protein),
-        "carbs": round(carbs),
+        "carbs": round(max(carbs, 0)),
         "fats": round(fats)
     }
 
 
 # =========================
-# 6. Transformation Engine
+# 5. Adaptive Transformation Engine
 # =========================
-def weekly_progress(goal, target_change):
-    if goal == "lose weight":
-        return min(round(target_change / 0.5, 1), 1.0)
-    elif goal == "gain muscle":
-        return min(round(target_change / 0.25, 1), 0.5)
-    return 0
+def adaptive_rate(goal, activity, training_days):
+    base = 0.4 if goal == "gain muscle" else 0.5
+
+    if activity == "sedentary":
+        base *= 0.85
+    elif activity == "very active":
+        base *= 1.1
+
+    if training_days >= 5:
+        base *= 1.1
+
+    return round(min(base, 0.6), 2)
 
 
 # =========================
-# 7. Timeline Estimator
+# 6. Timeline Engine
 # =========================
-def estimate_timeline(weekly_rate, target_change):
+def estimate_timeline(weight_change, weekly_rate):
     if weekly_rate == 0:
         return 0
-    return math.ceil(target_change / weekly_rate)
+    return math.ceil(weight_change / weekly_rate)
