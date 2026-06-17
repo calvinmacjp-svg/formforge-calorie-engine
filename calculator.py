@@ -1,14 +1,18 @@
 import math
 
-# ---------- TDEE CALCULATION ----------
+# =========================
+# 1. BMR (Metabolic Base)
+# =========================
 def calculate_bmr(weight, height, age, gender):
-    # Mifflin-St Jeor Equation
     if gender.lower() == "male":
         return 10 * weight + 6.25 * height - 5 * age + 5
     else:
         return 10 * weight + 6.25 * height - 5 * age - 161
 
 
+# =========================
+# 2. Activity Multiplier
+# =========================
 def activity_multiplier(level):
     levels = {
         "sedentary": 1.2,
@@ -20,26 +24,33 @@ def activity_multiplier(level):
     return levels.get(level.lower(), 1.55)
 
 
+# =========================
+# 3. TDEE (Maintenance Calories)
+# =========================
 def calculate_tdee(bmr, activity_level):
     return bmr * activity_multiplier(activity_level)
 
 
-# ---------- CALORIE ADJUSTMENT ----------
-def adjust_calories(tdee, goal, target_change=0):
+# =========================
+# 4. Goal Adjustment System
+# =========================
+def adjust_calories(tdee, goal):
     if goal == "lose weight":
-        return tdee - (300 + min(target_change * 50, 200))
+        return tdee - 400
     elif goal == "gain muscle":
-        return tdee + (200 + min(target_change * 50, 200))
+        return tdee + 300
     else:
         return tdee
 
 
-# ---------- MACROS ----------
+# =========================
+# 5. Macro Engine (High Protein Priority)
+# =========================
 def calculate_macros(weight, calories):
-    protein = weight * 2.2  # high priority
-    protein_cal = protein * 4
+    protein = weight * 2.2  # transformation driver
+    fats = weight * 0.9     # hormonal support
 
-    fats = weight * 0.9
+    protein_cal = protein * 4
     fat_cal = fats * 9
 
     carbs_cal = calories - (protein_cal + fat_cal)
@@ -52,15 +63,21 @@ def calculate_macros(weight, calories):
     }
 
 
-# ---------- PROJECTION ----------
+# =========================
+# 6. Transformation Engine
+# =========================
 def weekly_progress(goal, target_change):
     if goal == "lose weight":
-        return round(target_change / 0.4, 1)  # avg fat loss/week
+        return min(round(target_change / 0.5, 1), 1.0)
     elif goal == "gain muscle":
-        return round(target_change / 0.25, 1)  # muscle gain rate
+        return min(round(target_change / 0.25, 1), 0.5)
     return 0
 
 
-def estimate_timeline(target_change):
-    weeks = target_change / 0.4
-    return math.ceil(weeks)
+# =========================
+# 7. Timeline Estimator
+# =========================
+def estimate_timeline(weekly_rate, target_change):
+    if weekly_rate == 0:
+        return 0
+    return math.ceil(target_change / weekly_rate)
